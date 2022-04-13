@@ -1,16 +1,18 @@
-import codebuild = require('@aws-cdk/aws-codebuild');
-import * as iam from '@aws-cdk/aws-iam';
-import * as cdk from '@aws-cdk/core';
-import { PipelineProject } from '@aws-cdk/aws-codebuild';
-import * as ecr from '@aws-cdk/aws-ecr';
-import * as eks from '@aws-cdk/aws-eks';
+import codebuild = require('aws-cdk-lib/aws-codebuild');
+import { App, Stack, StackProps } from 'aws-cdk-lib';                 
+import { Construct } from 'constructs';
+
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { PipelineProject } from 'aws-cdk-lib/aws-codebuild';
+import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as eks from 'aws-cdk-lib/aws-eks';
 
 
-export function codeToECRspec (scope: cdk.Construct, apprepo: string) :PipelineProject {
+export function codeToECRspec (scope: Construct, apprepo: string) :PipelineProject {
     const buildForECR = new codebuild.PipelineProject(scope, `build-to-ecr`, { 
         projectName: `build-to-ecr`,
         environment: {
-            buildImage: codebuild.LinuxBuildImage.UBUNTU_14_04_DOCKER_18_09_0,
+            buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_3, //UBUNTU_14_04_DOCKER_18_09_0,
             privileged: true
         },
         environmentVariables: { 'ECR_REPO_URI': {
@@ -45,7 +47,7 @@ export function codeToECRspec (scope: cdk.Construct, apprepo: string) :PipelineP
 
 }
 
-export function deployToEKSspec (scope: cdk.Construct, region: string, cluster: eks.Cluster, apprepo: ecr.IRepository, roleToAssume: iam.Role) :PipelineProject {
+export function deployToEKSspec (scope: Construct, region: string, cluster: eks.Cluster, apprepo: ecr.IRepository, roleToAssume: iam.Role) :PipelineProject {
     
     const deployBuildSpec = new codebuild.PipelineProject(scope, `deploy-to-eks-${region}`, {
         environment: {
